@@ -1,10 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}
+    {% if selected_pokemon %}
+        Detail: {{ selected_pokemon.name }} - PokéWeb
+    {% else %}
+        Katalog - Strana {{ current_page }} - PokéWeb
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    <!-- ZAČLENĚNÍ KOMPONENTY HLAVNÍHO OBSAHU -->
+    {% include 'components/main.html' %}
+{% endblock %}

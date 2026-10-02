@@ -1,0 +1,147 @@
+<!-- ========================================== -->
+<!-- KOMPONENTA: MAIN (HLAVNÍ OBSAH)            -->
+<!-- Zabírá 100 % šířky (col-12)                -->
+<!-- ========================================== -->
+<main class="col-12">
+    <!-- KONTEJNER S ANIMACÍ (Obsah po načtení plynule "vyjede" nahoru) -->
+    <div class="fade-in-content" style="animation-delay: 0.2s;">
+
+        {% if selected_pokemon %}
+        <!-- ========================================== -->
+        <!-- ZOBRAZENÍ DETAILU KONKRÉTNÍHO POKÉMONA     -->
+        <!-- ========================================== -->
+
+        <div class="mb-4">
+            <a href="{{ url_for('index', page=current_page) }}" class="btn btn-outline-secondary btn-lg fw-medium shadow-sm">
+                <i class="bi bi-arrow-left me-2"></i> Zpět na katalog
+            </a>
+        </div>
+
+        <div class="card p-4 p-md-5 border-0 shadow-lg rounded-4 bg-white">
+            <div class="row align-items-center g-5">
+                <div class="col-md-5 text-center bg-light rounded-4 p-4 shadow-sm">
+                    <img src="{{ selected_pokemon.img }}" alt="{{ selected_pokemon.name }}" class="img-fluid" loading="lazy" style="max-height: 300px; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.15));">
+                </div>
+
+                <div class="col-md-7">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h1 class="display-4 fw-bold mb-0">{{ selected_pokemon.name }}</h1>
+                        <span class="fs-3 text-muted fw-bold">#{{ "%03d"|format(selected_pokemon.id) }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <span class="badge badge-type {{ selected_pokemon.type_class }} fs-6 px-3 py-2">{{ selected_pokemon.type }}</span>
+                    </div>
+                    <p class="fs-5 text-secondary mb-4">{{ selected_pokemon.desc }}</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center border shadow-sm">
+                                <small class="text-muted d-block text-uppercase fw-bold">Výška</small>
+                                <strong class="fs-5">{{ selected_pokemon.height }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center border shadow-sm">
+                                <small class="text-muted d-block text-uppercase fw-bold">Váha</small>
+                                <strong class="fs-5">{{ selected_pokemon.weight }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2 text-danger"></i>Bojové statistiky</h5>
+
+                    {% set stats = [
+                        ('HP', selected_pokemon.hp, 'bg-success'),
+                        ('Útok', selected_pokemon.attack, 'bg-danger'),
+                        ('Obrana', selected_pokemon.defense, 'bg-primary'),
+                        ('Rychlost', selected_pokemon.speed, 'bg-warning')
+                    ] %}
+
+                    {% for stat_name, stat_val, stat_color in stats %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between small fw-bold mb-1">
+                            <span>{{ stat_name }}</span> <span>{{ stat_val }}</span>
+                        </div>
+                        <div class="progress" style="height: 10px; border-radius: 10px;">
+                            <div class="progress-bar {{ stat_color }} progress-bar-striped progress-bar-animated" style="width: {{ (stat_val / 160) * 100 }}%"></div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!-- ====== KONEC ZOBRAZENÍ DETAILU ====== -->
+
+        {% else %}
+        <!-- ========================================== -->
+        <!-- ZOBRAZENÍ KATALOGU KARET SE STRÁNKOVÁNÍM   -->
+        <!-- ========================================== -->
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">Seznam Pokémonů</h2>
+                <p class="text-muted mb-0">Objev a zkoumej své oblíbené Pokémony.</p>
+            </div>
+            <span class="badge bg-danger fs-6 px-3 py-2 shadow-sm">Strana {{ current_page }} z {{ total_pages }}</span>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+            {% for pokemon in pokemons %}
+            <div class="col">
+                <div class="card h-100 pokemon-card border-0 shadow-sm">
+                    <div class="pokemon-img-box">
+                        <img src="{{ pokemon.img }}" class="pokemon-img" alt="{{ pokemon.name }}" loading="lazy">
+                    </div>
+                    <div class="card-body d-flex flex-column p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="text-muted fw-bold">#{{ "%03d"|format(pokemon.id) }}</span>
+                            <span class="badge badge-type {{ pokemon.type_class }}">{{ pokemon.type }}</span>
+                        </div>
+                        <h4 class="card-title fw-bold text-dark mb-2">{{ pokemon.name }}</h4>
+                        <p class="card-text text-secondary small flex-grow-1">{{ pokemon.desc }}</p>
+
+                        <div class="row text-center bg-light rounded p-2 mb-3 g-0 border">
+                            <div class="col-6 border-end">
+                                <small class="text-muted d-block fw-semibold">Útok</small>
+                                <strong class="text-danger">{{ pokemon.attack }}</strong>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block fw-semibold">Rychlost</small>
+                                <strong class="text-primary">{{ pokemon.speed }}</strong>
+                            </div>
+                        </div>
+
+                        <a href="{{ url_for('index', id=pokemon.id, page=current_page) }}" class="btn btn-outline-danger w-100 fw-bold shadow-sm">
+                            <i class="bi bi-info-circle me-1"></i> Detail
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Stránkování (Pagination) -->
+        <nav aria-label="Stránkování" class="mt-5 text-center">
+            <ul class="pagination pagination-lg justify-content-center shadow-sm" style="border-radius: 8px; display: inline-flex;">
+                <li class="page-item {% if current_page <= 1 %}disabled{% endif %}">
+                    <a class="page-link text-danger" href="{{ url_for('index', page=current_page-1) }}">
+                        <i class="bi bi-chevron-left"></i> Předchozí
+                    </a>
+                </li>
+                {% for p in range(1, total_pages + 1) %}
+                <li class="page-item {% if p == current_page %}active{% endif %}">
+                    <a class="page-link {% if p == current_page %}bg-danger border-danger text-white{% else %}text-danger{% endif %}" href="{{ url_for('index', page=p) }}">{{ p }}</a>
+                </li>
+                {% endfor %}
+                <li class="page-item {% if current_page >= total_pages %}disabled{% endif %}">
+                    <a class="page-link text-danger" href="{{ url_for('index', page=current_page+1) }}">
+                        Další <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- ====== KONEC ZOBRAZENÍ KATALOGU ====== -->
+        {% endif %}
+
+    </div>
+</main>
